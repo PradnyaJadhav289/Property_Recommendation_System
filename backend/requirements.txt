@@ -1,4 +1,5 @@
-
+# ─── Brickfolio AI — Python Dependencies ────────────────────────────────
+# Tested on Python 3.11 — do NOT use Python 3.12+ on Render free tier
 
 # Web framework
 fastapi==0.110.0
@@ -8,7 +9,7 @@ uvicorn[standard]==0.27.1
 pymongo==4.6.2
 
 # AI / ML
-scikit-learn
+scikit-learn==1.4.1
 numpy==1.26.4
 
 # Utilities
