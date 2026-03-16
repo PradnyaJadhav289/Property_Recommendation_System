@@ -1,0 +1,17 @@
+
+
+# Web framework
+fastapi==0.110.0
+uvicorn[standard]==0.27.1
+
+# Database
+pymongo==4.6.2
+
+# AI / ML
+scikit-learn
+numpy==1.26.4
+
+# Utilities
+python-dotenv==1.0.1
+requests==2.31.0
+pydantic==2.6.3

@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>My Profile — Brickfolio</title>
+<link rel="stylesheet" href="../style.css">
+<style>
+/* ── Profile-specific styles ── */
+.profile-grid { display:grid; grid-template-columns:320px 1fr; gap:32px; align-items:start; }
+@media(max-width:900px) { .profile-grid { grid-template-columns:1fr; } }
+
+/* Avatar card */
+.avatar-card {
+  background:var(--ink-3); border:1px solid var(--border-light);
+  border-radius:var(--rl); padding:28px; text-align:center; position:sticky; top:80px;
+}
+.avatar {
+  width:80px; height:80px; border-radius:50%; margin:0 auto 16px;
+  background:linear-gradient(135deg,var(--brand),#a855f7);
+  display:flex; align-items:center; justify-content:center;
+  font-family:var(--font-display); font-weight:800; font-size:28px; color:#fff;
+}
+.profile-uid { font-size:11px; color:var(--muted); margin-top:6px; font-family:monospace; }
+.profile-stats { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:24px; }
+.pstat { background:var(--ink-4); border-radius:12px; padding:14px 8px; text-align:center; }
+.pstat-val { font-family:var(--font-display); font-weight:700; font-size:20px; color:var(--paper); }
+.pstat-key { font-size:10px; color:var(--muted); margin-top:2px; text-transform:uppercase; letter-spacing:.06em; }
+.pstat-val.brand { color:var(--brand); }
+
+/* Panel */
+.panel { background:var(--ink-3); border:1px solid var(--border-light); border-radius:var(--rl); overflow:hidden; margin-bottom:20px; }
+.panel-header { padding:18px 22px; border-bottom:1px solid var(--border-light); display:flex; align-items:center; justify-content:space-between; }
+.panel-title { font-family:var(--font-display); font-weight:700; font-size:16px; color:var(--paper); display:flex; align-items:center; gap:8px; }
+.panel-body  { padding:22px; }
+
+/* Budget slider */
+.budget-display { font-family:var(--font-display); font-weight:700; font-size:22px; color:var(--brand); margin-bottom:10px; }
+.range-wrap { position:relative; margin-bottom:6px; }
+input[type=range] {
+  width:100%; accent-color:var(--brand); height:4px; cursor:pointer;
+  background:linear-gradient(to right,var(--brand) var(--pct,40%),var(--ink-4) var(--pct,40%));
+  border-radius:4px; outline:none; border:none; appearance:none;
+}
+.range-labels { display:flex; justify-content:space-between; font-size:11px; color:var(--muted); }
+
+/* Location tags */
+.loc-tags { display:flex; flex-wrap:wrap; gap:8px; }
+.loc-tag {
+  display:flex; align-items:center; gap:6px;
+  background:var(--brand-dim); color:var(--brand); border:1px solid var(--border);
+  padding:6px 12px; border-radius:20px; font-size:12px; font-weight:500;
+}
+.loc-tag button {
+  background:none; border:none; color:var(--brand); cursor:pointer; font-size:14px; line-height:1; padding:0;
+}
+.loc-tag button:hover { color:var(--error); }
+
+/* Activity feed */
+.activity-item {
+  display:flex; align-items:center; gap:14px;
+  padding:12px 0; border-bottom:1px solid var(--border-light);
+}
+.activity-item:last-child { border-bottom:none; }
+.act-icon {
+  width:38px; height:38px; border-radius:10px; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center; font-size:16px;
+}
+.act-icon.view   { background:var(--brand-dim); }
+.act-icon.click  { background:var(--ai-dim); }
+.act-icon.search { background:rgba(61,186,123,.1); }
+.act-meta { flex:1; }
+.act-label  { font-size:13px; color:var(--paper); }
+.act-time   { font-size:11px; color:var(--muted); margin-top:2px; }
+.act-badge  { font-size:10px; padding:3px 8px; border-radius:8px; background:var(--ink-4); color:var(--muted); }
+
+/* Wishlist grid */
+.wishlist-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:14px; }
+.wishlist-card {
+  background:var(--ink-4); border-radius:14px; overflow:hidden; cursor:pointer;
+  border:1px solid var(--border-light); transition:all .2s;
+}
+.wishlist-card:hover { border-color:var(--border); }
+.wl-img   { height:110px; overflow:hidden; }
+.wl-img img { width:100%; height:100%; object-fit:cover; }
+.wl-body  { padding:10px; }
+.wl-price { font-size:13px; font-weight:700; color:var(--brand); }
+.wl-title { font-size:12px; color:var(--paper); margin-top:2px; }
+.wl-remove { font-size:11px; color:var(--muted); margin-top:6px; cursor:pointer; }
+.wl-remove:hover { color:var(--error); }
+
+/* Search history */
+.history-list { display:flex; flex-direction:column; gap:6px; }
+.history-item {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:10px 14px; background:var(--ink-4); border-radius:var(--r);
+  font-size:13px; color:var(--paper); cursor:pointer; transition:background .2s;
+}
+.history-item:hover { background:var(--brand-dim); }
+.history-item span { color:var(--muted); font-size:11px; }
+</style>
+</head>
+<body>
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+
+<!-- HEADER -->
+<header class="header z">
+  <a href="../index.html" class="logo">
+    <div class="logo-mark">B</div>
+    <span class="logo-name">Brick<em>folio</em></span>
+  </a>
+  <div class="header-right">
+    <span class="badge badge-brand">0% Brokerage</span>
+    <a href="../index.html" class="btn btn-ghost btn-sm">← Back to listings</a>
+  </div>
+</header>
+
+<main class="z section">
+  <div class="profile-grid">
+
+    <!-- LEFT: Avatar + stats -->
+    <div>
+      <div class="avatar-card">
+        <div class="avatar" id="avatarEl">G</div>
+        <div style="font-family:var(--font-display);font-weight:700;font-size:18px;color:var(--paper)" id="profileName">Guest User</div>
+        <div class="profile-uid" id="profileUid"></div>
+        <div class="profile-stats">
+          <div class="pstat"><div class="pstat-val brand" id="statViewed">0</div><div class="pstat-key">Viewed</div></div>
+          <div class="pstat"><div class="pstat-val brand" id="statSearches">0</div><div class="pstat-key">Searches</div></div>
+          <div class="pstat"><div class="pstat-val brand" id="statWishlist">0</div><div class="pstat-key">Wishlist</div></div>
+        </div>
+        <div style="margin-top:20px">
+          <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="refreshRecs()">
+            ✦ Refresh AI Recs
+          </button>
+          <button class="btn btn-ghost" style="width:100%;justify-content:center;margin-top:8px" onclick="clearHistory()">
+            🗑️ Clear History
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Panels -->
+    <div>
+
+      <!-- Budget Preference -->
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">💰 Budget Preference</div>
+          <button class="btn btn-sm btn-ghost" onclick="saveBudget()">Save</button>
+        </div>
+        <div class="panel-body">
+          <div class="budget-display" id="budgetDisplay">₹50L – ₹1.5Cr</div>
+          <div style="display:grid;gap:16px">
+            <div>
+              <label>Minimum Budget</label>
+              <div class="range-wrap">
+                <input type="range" id="budgetMin" min="1000000" max="50000000" step="500000" value="5000000" oninput="updateBudget()">
+              </div>
+            </div>
+            <div>
+              <label>Maximum Budget</label>
+              <div class="range-wrap">
+                <input type="range" id="budgetMax" min="1000000" max="50000000" step="500000" value="15000000" oninput="updateBudget()">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Interested Locations -->
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">📍 Interested Locations</div>
+        </div>
+        <div class="panel-body">
+          <div class="loc-tags" id="locTags" style="margin-bottom:14px"></div>
+          <div style="display:flex;gap:8px">
+            <input id="locInput" class="input" placeholder="Add a location (e.g. Wakad)" style="flex:1"
+              onkeydown="if(event.key==='Enter') addLocation()">
+            <button class="btn btn-primary btn-sm" onclick="addLocation()">+ Add</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Wishlist -->
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">❤️ My Wishlist</div>
+          <span class="badge badge-brand" id="wishlistCount">0</span>
+        </div>
+        <div class="panel-body">
+          <div class="wishlist-grid" id="wishlistGrid">
+            <div style="color:var(--muted);font-size:13px;grid-column:1/-1">Loading wishlist…</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Search History -->
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">🔍 Search History</div>
+          <button class="btn btn-sm btn-ghost" onclick="clearSearchHistory()">Clear</button>
+        </div>
+        <div class="panel-body">
+          <div class="history-list" id="historyList">
+            <div style="color:var(--muted);font-size:13px">No searches yet</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Activity -->
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">⚡ Recent Activity</div>
+        </div>
+        <div class="panel-body">
+          <div id="activityFeed">
+            <div style="color:var(--muted);font-size:13px">Loading activity…</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</main>
+
+<footer class="z"><strong>Brick<span class="brand">folio</span></strong> — Pune's #1 Zero Brokerage Platform · Powered by AI</footer>
+
+<div class="toast" id="toast"><div class="toast-dot" id="toastDot"></div><span id="toastMsg"></span></div>
+
+<script src="../script.js"></script>
+<script>
+let interestLocs = [];
+
+// ─── Init ──────────────────────────────────────────────────────────
+async function initProfile() {
+  const uid = getUserId();
+  document.getElementById('profileUid').textContent = 'ID: ' + uid;
+  document.getElementById('avatarEl').textContent   = uid.charAt(2).toUpperCase();
+
+  // Load profile from API
+  try {
+    const r = await fetch(`${API}/users/${uid}/profile`);
+    const d = await r.json();
+    const u = d.user || {};
+
+    document.getElementById('profileName').textContent = u.name || 'Guest User';
+    document.getElementById('statViewed').textContent  = (u.viewed_properties || []).length;
+    document.getElementById('statSearches').textContent = (u.search_history || []).length;
+
+    // Budget
+    if (u.budget_range?.min) {
+      document.getElementById('budgetMin').value = u.budget_range.min;
+      document.getElementById('budgetMax').value = u.budget_range.max || 15000000;
+      updateBudget();
+    }
+
+    // Locations
+    interestLocs = u.interested_locations || [];
+    renderLocTags();
+
+    // Activity
+    renderActivity(d.recent_activity || []);
+  } catch {
+    showToast('Could not load profile from server', 'warn');
+  }
+
+  // Local data
+  renderWishlist();
+  renderSearchHistory();
+  updateStats();
+}
+
+// ─── Budget ───────────────────────────────────────────────────────
+function updateBudget() {
+  const mn  = parseInt(document.getElementById('budgetMin').value);
+  const mx  = parseInt(document.getElementById('budgetMax').value);
+  const pctMn = ((mn - 1000000) / 49000000) * 100;
+  const pctMx = ((mx - 1000000) / 49000000) * 100;
+  document.getElementById('budgetMin').style.setProperty('--pct', pctMn + '%');
+  document.getElementById('budgetMax').style.setProperty('--pct', pctMx + '%');
+  document.getElementById('budgetDisplay').textContent = formatPrice(mn) + ' – ' + formatPrice(mx);
+}
+
+async function saveBudget() {
+  const mn = parseInt(document.getElementById('budgetMin').value);
+  const mx = parseInt(document.getElementById('budgetMax').value);
+  try {
+    await fetch(`${API}/search`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user_id: getUserId(), query: 'budget update', budget_min: mn, budget_max: mx }),
+    });
+    showToast('Budget preference saved ✓', 'ok');
+  } catch { showToast('Saved locally', 'warn'); }
+}
+
+// ─── Locations ───────────────────────────────────────────────────
+function addLocation() {
+  const val = document.getElementById('locInput').value.trim();
+  if (!val || interestLocs.includes(val)) return;
+  interestLocs.push(val);
+  document.getElementById('locInput').value = '';
+  renderLocTags();
+  fetch(`${API}/search`, {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ user_id: getUserId(), query: val, location: val }),
+  }).catch(() => {});
+}
+
+function removeLocation(loc) {
+  interestLocs = interestLocs.filter(l => l !== loc);
+  renderLocTags();
+}
+
+function renderLocTags() {
+  const el = document.getElementById('locTags');
+  el.innerHTML = interestLocs.length
+    ? interestLocs.map(l => `<div class="loc-tag">${l}<button onclick="removeLocation('${l}')">×</button></div>`).join('')
+    : '<span style="color:var(--muted);font-size:13px">No locations added yet</span>';
+}
+
+// ─── Wishlist ─────────────────────────────────────────────────────
+async function renderWishlist() {
+  const ids = JSON.parse(localStorage.getItem('bf_liked') || '[]');
+  document.getElementById('wishlistCount').textContent = ids.length;
+  document.getElementById('statWishlist').textContent  = ids.length;
+  const el = document.getElementById('wishlistGrid');
+  if (!ids.length) { el.innerHTML = '<div style="color:var(--muted);font-size:13px;grid-column:1/-1">No saved properties yet</div>'; return; }
+
+  try {
+    const propsData = await Promise.all(ids.slice(0, 8).map(id =>
+      fetch(`${API}/properties/${id}`).then(r => r.json()).catch(() => null)
+    ));
+    el.innerHTML = propsData.filter(Boolean).map(d => d.property).filter(Boolean).map(p => `
+      <div class="wishlist-card" onclick="window.location='property.html?id=${p.property_id}'">
+        <div class="wl-img"><img src="${p.image || 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=400&q=70'}" loading="lazy"></div>
+        <div class="wl-body">
+          <div class="wl-price">${p.price_display || formatPrice(p.price)}</div>
+          <div class="wl-title">${p.title}</div>
+          <div class="wl-remove" onclick="event.stopPropagation();unlikeProp('${p.property_id}',this)">× Remove</div>
+        </div>
+      </div>`).join('') || '<div style="color:var(--muted);font-size:13px;grid-column:1/-1">Could not load saved properties</div>';
+  } catch { el.innerHTML = '<div style="color:var(--muted);font-size:13px;grid-column:1/-1">Could not load wishlist</div>'; }
+}
+
+function unlikeProp(id, el) {
+  const liked = JSON.parse(localStorage.getItem('bf_liked') || '[]');
+  localStorage.setItem('bf_liked', JSON.stringify(liked.filter(x => x !== id)));
+  el.closest('.wishlist-card').remove();
+  showToast('Removed from wishlist', 'warn');
+  updateStats();
+}
+
+// ─── Search History ───────────────────────────────────────────────
+function renderSearchHistory() {
+  const hist = JSON.parse(localStorage.getItem('bf_searches') || '[]');
+  const el   = document.getElementById('historyList');
+  el.innerHTML = hist.length
+    ? hist.slice(0, 10).map((q, i) => `
+      <div class="history-item" onclick="window.location='../index.html?q=${encodeURIComponent(q)}'">
+        🔍 ${q}<span>#${i + 1}</span>
+      </div>`).join('')
+    : '<div style="color:var(--muted);font-size:13px">No searches recorded yet</div>';
+}
+
+function clearSearchHistory() {
+  localStorage.removeItem('bf_searches');
+  renderSearchHistory();
+  showToast('Search history cleared', 'ok');
+}
+
+// ─── Activity Feed ────────────────────────────────────────────────
+function renderActivity(activities) {
+  const el = document.getElementById('activityFeed');
+  if (!activities.length) {
+    el.innerHTML = '<div style="color:var(--muted);font-size:13px">No activity recorded yet</div>'; return;
+  }
+  const icons = { view: '👁️', click: '🖱️', search: '🔍' };
+  const labels = { view: 'Viewed property', click: 'Clicked property', search: 'Searched' };
+  el.innerHTML = activities.map(a => `
+    <div class="activity-item">
+      <div class="act-icon ${a.action_type}">${icons[a.action_type] || '📋'}</div>
+      <div class="act-meta">
+        <div class="act-label">${labels[a.action_type] || a.action_type} · <strong>${a.property_id}</strong></div>
+        <div class="act-time">${a.timestamp ? new Date(a.timestamp).toLocaleString('en-IN') : 'recently'}</div>
+      </div>
+      <span class="act-badge">${a.action_type}</span>
+    </div>`).join('');
+}
+
+// ─── Misc ─────────────────────────────────────────────────────────
+function updateStats() {
+  const liked = JSON.parse(localStorage.getItem('bf_liked') || '[]');
+  document.getElementById('statWishlist').textContent  = liked.length;
+  document.getElementById('wishlistCount').textContent = liked.length;
+}
+
+async function refreshRecs() {
+  showToast('Refreshing AI recommendations…', 'ok');
+  await fetch(`${API}/recommendations/${getUserId()}?limit=6${userLat ? `&lat=${userLat}&lng=${userLng}` : ''}`).catch(() => {});
+  window.location = '../index.html';
+}
+
+function clearHistory() {
+  if (!confirm('Clear all viewing history? This will reset your AI recommendations.')) return;
+  localStorage.removeItem('bf_searches');
+  localStorage.removeItem('bf_liked');
+  renderSearchHistory();
+  renderWishlist();
+  updateStats();
+  showToast('History cleared. AI recommendations reset.', 'ok');
+}
+
+requestLocation();
+initProfile();
+</script>
+</body>
+</html>

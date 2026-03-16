@@ -1,0 +1,11 @@
+.env
+*.env
+.env.local
+.env.production
+__pycache__/
+*.pyc
+*.pyo
+# ─── Virtual Environment ──────────────────────────────────────────────────
+venv/
+env/
+.venv/

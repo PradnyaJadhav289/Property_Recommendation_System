@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Brickfolio — AI-Powered Real Estate · Pune's #1 Zero Brokerage</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+
+<!-- ─── HEADER ─────────────────────────────────────────────────── -->
+<header class="header z">
+  <a href="index.html" class="logo">
+    <div class="logo-mark">B</div>
+    <span class="logo-name">Brick<em>folio</em></span>
+  </a>
+  <div class="header-right">
+    <span class="badge badge-brand">0% Brokerage</span>
+    <div class="location-pill" onclick="requestLocation()">
+      <div class="loc-dot" id="locDot"></div>
+      <span id="locationLabel">Detecting…</span>
+    </div>
+  </div>
+</header>
+
+<!-- ─── HERO ────────────────────────────────────────────────────── -->
+<section class="z" style="padding:80px 40px 60px;text-align:center;max-width:900px;margin:0 auto">
+  <div class="badge badge-ai" style="display:inline-flex;align-items:center;gap:8px;margin-bottom:28px">
+    ✦ AI-Powered Property Search · Pune
+  </div>
+  <h1 style="font-family:var(--font-display);font-weight:800;font-size:clamp(36px,6vw,68px);line-height:1.05;letter-spacing:-.02em;margin-bottom:20px">
+    Find Your Dream Home<br>with <span style="color:var(--brand)">Zero Brokerage</span>
+  </h1>
+  <p style="font-size:16px;color:var(--muted);max-width:560px;margin:0 auto 40px;line-height:1.7">
+    Our AI learns your preferences and recommends properties tailored to your location, budget, and search history — before you even ask.
+  </p>
+
+  <!-- Search bar -->
+  <div id="searchContainer" style="background:var(--ink-3);border:1px solid var(--border);border-radius:var(--rl);padding:6px 6px 6px 20px;display:flex;align-items:center;gap:12px;max-width:700px;margin:0 auto 16px;transition:all .2s">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2">
+      <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+    </svg>
+    <input id="searchInput"
+      style="flex:1;background:none;border:none;outline:none;font-family:var(--font-body);font-size:15px;color:var(--paper);font-weight:300"
+      placeholder="Search by location, project name, or builder…"
+      onkeydown="if(event.key==='Enter') doSearch()">
+    <button class="btn btn-primary" style="border-radius:14px" onclick="doSearch()">Search</button>
+  </div>
+
+  <!-- Filters -->
+  <div style="display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap">
+    <div class="filter-chip">
+      <select id="filterType" onchange="applyFilters()">
+        <option value="">All Types</option>
+        <option>1BHK</option>
+        <option>2BHK</option>
+        <option>3BHK</option>
+        <option>4BHK</option>
+        <option>Villa</option>
+        <option>Plot</option>
+        <option>Studio</option>
+      </select>
+    </div>
+    <div class="filter-chip">
+      <select id="filterBudget" onchange="applyFilters()">
+        <option value="">Any Budget</option>
+        <option value="0-5000000">Under ₹50L</option>
+        <option value="5000000-10000000">₹50L – ₹1Cr</option>
+        <option value="10000000-20000000">₹1Cr – ₹2Cr</option>
+        <option value="20000000-99999999">₹2Cr+</option>
+      </select>
+    </div>
+  </div>
+</section>
+
+<!-- ─── STATS ───────────────────────────────────────────────────── -->
+<div class="z stats-bar">
+  <div class="stat"><div class="stat-num">500<span>+</span></div><div class="stat-label">Properties</div></div>
+  <div class="stat"><div class="stat-num">0<span>%</span></div><div class="stat-label">Brokerage</div></div>
+  <div class="stat"><div class="stat-num">12<span>k+</span></div><div class="stat-label">Families</div></div>
+  <div class="stat"><div class="stat-num">8</div><div class="stat-label">Pune Zones</div></div>
+</div>
+
+<!-- ─── AI RECOMMENDATIONS ─────────────────────────────────────── -->
+<section class="z section">
+  <div class="section-header">
+    <div class="section-title">
+      ✦ Recommended For You
+      <span class="badge badge-ai">AI Powered</span>
+    </div>
+    <a href="#" class="see-all">See all →</a>
+  </div>
+
+  <div class="ai-banner">
+    <div class="ai-icon">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--ai)" stroke-width="2">
+        <circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/>
+      </svg>
+    </div>
+    <div class="ai-banner-text" id="aiBannerText">
+      <h3>Personalising recommendations…</h3>
+      <p>Analysing your location &amp; preferences</p>
+    </div>
+    <div class="ai-signals" id="aiSignals"></div>
+  </div>
+
+  <!-- Skeleton placeholders (replaced by JS) -->
+  <div class="property-grid" id="recommendationsGrid">
+    <div class="skeleton">
+      <div class="skel-img"></div>
+      <div class="skel-body">
+        <div class="skel-line w80"></div>
+        <div class="skel-line w60"></div>
+        <div class="skel-line w40"></div>
+      </div>
+    </div>
+    <div class="skeleton" style="animation-delay:.1s">
+      <div class="skel-img"></div>
+      <div class="skel-body">
+        <div class="skel-line w80"></div>
+        <div class="skel-line w60"></div>
+        <div class="skel-line w40"></div>
+      </div>
+    </div>
+    <div class="skeleton" style="animation-delay:.2s">
+      <div class="skel-img"></div>
+      <div class="skel-body">
+        <div class="skel-line w80"></div>
+        <div class="skel-line w60"></div>
+        <div class="skel-line w40"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── NEAR YOU ──────────────────────────────────────────────── -->
+<section class="z section" style="padding-top:0">
+  <div class="section-header">
+    <div class="section-title">
+      📍 Properties Near You
+      <span class="badge badge-ok">Live</span>
+    </div>
+  </div>
+
+  <div class="near-strip" id="nearStrip">
+    <div class="skeleton near-card">
+      <div class="skel-img" style="height:130px"></div>
+      <div class="skel-body">
+        <div class="skel-line w60"></div>
+        <div class="skel-line w40"></div>
+      </div>
+    </div>
+    <div class="skeleton near-card" style="animation-delay:.1s">
+      <div class="skel-img" style="height:130px"></div>
+      <div class="skel-body">
+        <div class="skel-line w60"></div>
+        <div class="skel-line w40"></div>
+      </div>
+    </div>
+    <div class="skeleton near-card" style="animation-delay:.2s">
+      <div class="skel-img" style="height:130px"></div>
+      <div class="skel-body">
+        <div class="skel-line w60"></div>
+        <div class="skel-line w40"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── ALL PROPERTIES ────────────────────────────────────────── -->
+<section class="z section">
+  <div class="section-header">
+    <div class="section-title">
+      🏠 All Properties
+      <span class="badge badge-brand" id="totalBadge">Loading…</span>
+    </div>
+  </div>
+
+  <div class="property-grid" id="allPropertiesGrid">
+    <div class="skeleton">
+      <div class="skel-img"></div>
+      <div class="skel-body">
+        <div class="skel-line w80"></div>
+        <div class="skel-line w60"></div>
+        <div class="skel-line w40"></div>
+      </div>
+    </div>
+    <div class="skeleton" style="animation-delay:.1s">
+      <div class="skel-img"></div>
+      <div class="skel-body">
+        <div class="skel-line w80"></div>
+        <div class="skel-line w60"></div>
+        <div class="skel-line w40"></div>
+      </div>
+    </div>
+    <div class="skeleton" style="animation-delay:.2s">
+      <div class="skel-img"></div>
+      <div class="skel-body">
+        <div class="skel-line w80"></div>
+        <div class="skel-line w60"></div>
+        <div class="skel-line w40"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="pagination" class="pagination"></div>
+</section>
+
+<footer class="z">
+  <strong>Brick<span class="brand">folio</span></strong> — Pune's #1 Zero Brokerage Platform · Powered by AI
+</footer>
+
+<!-- ─── MODAL ──────────────────────────────────────────────────── -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal">
+    <div class="modal-img">
+      <img id="modalImage" src="" alt="">
+      <div class="modal-img-overlay"></div>
+      <button class="modal-close" onclick="closeModalDirect()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-price" id="modalPrice"></div>
+      <div class="modal-title" id="modalTitle"></div>
+      <div class="modal-loc">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/>
+          <circle cx="12" cy="10" r="3"/>
+        </svg>
+        <span id="modalLocText"></span>
+      </div>
+      <div class="modal-specs"  id="modalSpecs"></div>
+      <div class="modal-amenities" id="modalAmenities"></div>
+      <p class="modal-desc" id="modalDesc"></p>
+      <div class="modal-meta"  id="modalMeta"></div>
+      <div class="modal-actions">
+        <button class="modal-cta primary">Schedule Visit</button>
+        <button class="modal-cta secondary">WhatsApp Agent</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── TOAST ─────────────────────────────────────────────────── -->
+<div class="toast" id="toast">
+  <div class="toast-dot" id="toastDot"></div>
+  <span id="toastMsg"></span>
+</div>
+
+<!-- ─── SCRIPTS ───────────────────────────────────────────────── -->
+<script src="script.js"></script>
+<script>
+/* ── Page-level logic (index.html only) ── */
+let currentPage = 1;
+
+// ─── Filters ─────────────────────────────────────────────────────
+function applyFilters() {
+  var type   = document.getElementById('filterType').value;
+  var budget = document.getElementById('filterBudget').value;
+  var extra  = {};
+  if (type) extra.property_type = type;
+  if (budget) {
+    var parts = budget.split('-');
+    extra.min_price = parts[0];
+    extra.max_price = parts[1];
+  }
+  loadAllProperties(1, extra);
+}
+
+// ─── Search ───────────────────────────────────────────────────────
+async function doSearch() {
+  var q = document.getElementById('searchInput').value.trim();
+  if (!q) return;
+  addToSearchHistory(q);
+  await trackSearch(q);
+  loadAllProperties(1, { location: q });
+  showToast('Searching: ' + q, 'ok');
+}
+
+// ─── AI Recommendations ───────────────────────────────────────────
+async function loadRecommendations() {
+  try {
+    var url = API + '/recommendations/' + USER_ID + '?limit=6';
+    if (userLat) url += '&lat=' + userLat + '&lng=' + userLng;
+    var r = await fetch(url);
+    var d = await r.json();
+    updateAIBanner(d.recommendations || [], d.signals_used || []);
+    renderGrid('recommendationsGrid', d.recommendations || [], true);
+  } catch (e) {
+    loadFallbackRecs();
+  }
+}
+
+async function loadFallbackRecs() {
+  try {
+    var r = await fetch(API + '/properties?limit=6');
+    var d = await r.json();
+    updateAIBanner(d.properties || [], []);
+    renderGrid('recommendationsGrid', d.properties || []);
+  } catch (e) {
+    document.getElementById('recommendationsGrid').innerHTML =
+      emptyState('Backend offline — run: python main.py');
+  }
+}
+
+function updateAIBanner(props, signals) {
+  var labels = {
+    live_location:    '📍 Live Location',
+    search_history:   '🔍 Search History',
+    viewed_properties:'❤️ Interests',
+    budget_range:     '💰 Budget'
+  };
+  document.getElementById('aiBannerText').innerHTML =
+    '<h3>Personalised for You</h3>' +
+    '<p>' + props.length + ' matches · ' + signals.length + ' signals active</p>';
+  var list = signals.length ? signals : ['ai_score'];
+  document.getElementById('aiSignals').innerHTML = list.map(function(s) {
+    return '<span class="signal">' + (labels[s] || '🤖 AI Score') + '</span>';
+  }).join('');
+}
+
+// ─── Nearby Properties ────────────────────────────────────────────
+async function loadNearby() {
+  if (!userLat) return;
+  try {
+    var r = await fetch(
+      API + '/properties/nearby?lat=' + userLat + '&lng=' + userLng + '&radius_km=15&limit=8'
+    );
+    var d = await r.json();
+    var el = document.getElementById('nearStrip');
+    if (!d.properties || !d.properties.length) {
+      el.innerHTML = '<span style="color:var(--muted);font-size:13px">No nearby properties found</span>';
+      return;
+    }
+    el.innerHTML = d.properties.map(function(p) {
+      var img = p.image || 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=400&q=70';
+      var price = p.price_display || formatPrice(p.price);
+      var dist  = (p.distance_km != null) ? p.distance_km + ' km away' : 'Nearby';
+      var dataP = JSON.stringify(p).replace(/"/g, '&quot;');
+      return (
+        '<div class="near-card" onclick="openModalData(' + dataP + ')">' +
+          '<div class="near-img"><img src="' + img + '" loading="lazy" alt=""></div>' +
+          '<div class="near-body">' +
+            '<div class="near-dist">📍 ' + dist + '</div>' +
+            '<div class="near-title">' + p.title + '</div>' +
+            '<div class="near-price">' + price + '</div>' +
+          '</div>' +
+        '</div>'
+      );
+    }).join('');
+  } catch (e) { /* silent */ }
+}
+
+// ─── All Properties ───────────────────────────────────────────────
+async function loadAllProperties(page, extra) {
+  page  = page  || 1;
+  extra = extra || {};
+  currentPage = page;
+  var params = new URLSearchParams(Object.assign({ page: page, limit: 9 }, extra));
+  try {
+    var r = await fetch(API + '/properties?' + params.toString());
+    var d = await r.json();
+    document.getElementById('totalBadge').textContent = d.total + ' Listings';
+    renderGrid('allPropertiesGrid', d.properties || []);
+    renderPagination('pagination', d.page, d.pages, loadAllProperties);
+  } catch (e) {
+    document.getElementById('allPropertiesGrid').innerHTML = emptyState('Backend offline');
+  }
+}
+
+// ─── Init ─────────────────────────────────────────────────────────
+(async function init() {
+  try {
+    var r = await fetch(API + '/properties?limit=1');
+    var d = await r.json();
+    if (!d.total) {
+      await fetch(API + '/properties/seed-data/run');
+      showToast('Properties loaded! 🏠', 'ok');
+    }
+  } catch (e) {
+    showToast('Start backend: python main.py', 'warn');
+  }
+
+  loadAllProperties();
+  requestLocation(function() {
+    loadNearby();
+    loadRecommendations();
+  });
+
+  document.addEventListener('keydown', function(e) {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+      e.preventDefault();
+      document.getElementById('searchInput').focus();
+    }
+  });
+}());
+</script>
+</body>
+</html>

@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Property Detail — Brickfolio</title>
+<link rel="stylesheet" href="../style.css">
+<style>
+/* ── Page-specific styles ── */
+.breadcrumb { display:flex; align-items:center; gap:8px; font-size:12px; color:var(--muted); margin-bottom:28px; }
+.breadcrumb a { color:var(--muted); text-decoration:none; } .breadcrumb a:hover { color:var(--brand); }
+.breadcrumb span { color:var(--paper); }
+
+.detail-grid { display:grid; grid-template-columns:1fr 380px; gap:32px; align-items:start; }
+@media(max-width:900px) { .detail-grid { grid-template-columns:1fr; } }
+
+/* Gallery */
+.gallery { border-radius:var(--rl); overflow:hidden; margin-bottom:28px; }
+.gallery-main { height:360px; position:relative; overflow:hidden; }
+.gallery-main img { width:100%; height:100%; object-fit:cover; transition:transform .5s; }
+.gallery-main:hover img { transform:scale(1.03); }
+.gallery-thumbs { display:flex; gap:8px; margin-top:8px; }
+.gallery-thumbs img {
+  flex:1; height:80px; object-fit:cover; border-radius:10px; cursor:pointer;
+  border:2px solid transparent; transition:all .2s;
+}
+.gallery-thumbs img.active, .gallery-thumbs img:hover { border-color:var(--brand); }
+
+/* Info panel */
+.info-panel { background:var(--ink-3); border:1px solid var(--border-light); border-radius:var(--rl); padding:28px; position:sticky; top:80px; }
+.info-price { font-family:var(--font-display); font-weight:800; font-size:30px; color:var(--brand); }
+.info-title { font-family:var(--font-display); font-weight:700; font-size:20px; color:var(--paper); margin:8px 0; }
+.info-loc   { display:flex; align-items:center; gap:6px; color:var(--muted); font-size:13px; margin-bottom:24px; }
+.info-specs { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:24px; }
+.spec-box   { background:var(--ink-4); border-radius:12px; padding:14px 10px; text-align:center; }
+.spec-box-val { font-family:var(--font-display); font-weight:700; font-size:18px; color:var(--paper); }
+.spec-box-key { font-size:11px; color:var(--muted); margin-top:3px; }
+.divider { border:none; border-top:1px solid var(--border-light); margin:20px 0; }
+.info-cta-stack { display:flex; flex-direction:column; gap:10px; }
+.rera-tag { display:flex; align-items:center; gap:6px; font-size:11px; color:var(--ok); margin-top:14px; }
+
+/* Tabs */
+.tabs { display:flex; gap:0; border-bottom:1px solid var(--border-light); margin-bottom:28px; }
+.tab {
+  padding:12px 20px; font-size:14px; color:var(--muted); cursor:pointer;
+  border-bottom:2px solid transparent; transition:all .2s; font-family:var(--font-body);
+  background:none; border-top:none; border-left:none; border-right:none;
+}
+.tab.active { color:var(--brand); border-bottom-color:var(--brand); }
+.tab-panel  { display:none; } .tab-panel.active { display:block; }
+
+/* Overview */
+.overview-text { font-size:14px; color:var(--muted); line-height:1.8; }
+.highlights-list { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:12px; margin-top:20px; }
+.highlight-item {
+  display:flex; align-items:center; gap:10px; padding:12px 14px;
+  background:var(--ink-4); border-radius:var(--r); font-size:13px; color:var(--paper);
+}
+.hl-icon { width:32px;height:32px;border-radius:8px;background:var(--brand-dim);display:flex;align-items:center;justify-content:center;flex-shrink:0; }
+
+/* Amenities */
+.amenities-grid { display:flex; flex-wrap:wrap; gap:10px; }
+.amenity-item {
+  display:flex; align-items:center; gap:8px;
+  background:var(--ink-4); border:1px solid var(--border-light);
+  border-radius:var(--r); padding:10px 16px; font-size:13px; color:var(--paper);
+}
+
+/* Map placeholder */
+.map-placeholder {
+  background:var(--ink-4); border-radius:var(--rl);
+  height:280px; display:flex; align-items:center; justify-content:center;
+  flex-direction:column; gap:10px; color:var(--muted); font-size:14px;
+}
+
+/* Similar */
+.similar-strip { display:flex; gap:16px; overflow-x:auto; padding-bottom:6px; scrollbar-width:none; }
+.similar-strip::-webkit-scrollbar { display:none; }
+.similar-card {
+  min-width:240px; background:var(--ink-3); border:1px solid var(--border-light);
+  border-radius:16px; overflow:hidden; cursor:pointer; flex-shrink:0;
+  transition:all .3s;
+}
+.similar-card:hover { border-color:var(--border); transform:translateY(-3px); }
+.similar-img  { height:130px; overflow:hidden; }
+.similar-img img { width:100%; height:100%; object-fit:cover; transition:transform .4s; }
+.similar-card:hover .similar-img img { transform:scale(1.05); }
+.similar-body { padding:12px; }
+.similar-price { font-weight:700; color:var(--brand); font-size:13px; }
+.similar-title { font-size:13px; color:var(--paper); margin-top:2px; }
+</style>
+</head>
+<body>
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+
+<!-- HEADER -->
+<header class="header z">
+  <a href="../index.html" class="logo">
+    <div class="logo-mark">B</div>
+    <span class="logo-name">Brick<em>folio</em></span>
+  </a>
+  <div class="header-right">
+    <span class="badge badge-brand">0% Brokerage</span>
+    <div class="location-pill" onclick="requestLocation()">
+      <div class="loc-dot" id="locDot"></div>
+      <span id="locationLabel">Detecting…</span>
+    </div>
+  </div>
+</header>
+
+<main class="z section">
+  <!-- Breadcrumb -->
+  <div class="breadcrumb">
+    <a href="../index.html">Home</a> › <a href="../index.html">Properties</a> › <span id="bcTitle">Loading…</span>
+  </div>
+
+  <div class="detail-grid">
+    <!-- LEFT: Gallery + Tabs -->
+    <div>
+      <div class="gallery">
+        <div class="gallery-main">
+          <img id="mainImage" src="" alt="Property Image">
+        </div>
+        <div class="gallery-thumbs" id="galleryThumbs"></div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="tabs">
+        <button class="tab active" onclick="switchTab('overview',this)">Overview</button>
+        <button class="tab"        onclick="switchTab('amenities',this)">Amenities</button>
+        <button class="tab"        onclick="switchTab('location',this)">Location</button>
+      </div>
+
+      <!-- Overview -->
+      <div class="tab-panel active" id="tab-overview">
+        <p class="overview-text" id="overviewText"></p>
+        <div class="highlights-list" id="highlightsList"></div>
+      </div>
+
+      <!-- Amenities -->
+      <div class="tab-panel" id="tab-amenities">
+        <div class="amenities-grid" id="amenitiesGrid"></div>
+      </div>
+
+      <!-- Location -->
+      <div class="tab-panel" id="tab-location">
+        <div class="map-placeholder">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/>
+          </svg>
+          <span id="mapAddress">Loading…</span>
+          <a id="mapsLink" href="#" target="_blank" class="btn btn-sm btn-ghost" style="margin-top:8px">Open in Google Maps →</a>
+        </div>
+      </div>
+
+      <!-- Similar Properties -->
+      <div style="margin-top:40px">
+        <div class="section-header" style="margin-bottom:16px">
+          <div class="section-title" style="font-size:18px">Similar Properties</div>
+        </div>
+        <div class="similar-strip" id="similarStrip">
+          <div class="skeleton similar-card"><div class="skel-img" style="height:130px"></div><div class="skel-body"><div class="skel-line w60"></div><div class="skel-line w40"></div></div></div>
+          <div class="skeleton similar-card"><div class="skel-img" style="height:130px"></div><div class="skel-body"><div class="skel-line w60"></div><div class="skel-line w40"></div></div></div>
+          <div class="skeleton similar-card"><div class="skel-img" style="height:130px"></div><div class="skel-body"><div class="skel-line w60"></div><div class="skel-line w40"></div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Info Panel -->
+    <div class="info-panel">
+      <div class="info-price" id="infoPricex"></div>
+      <div class="info-title" id="infoTitle"></div>
+      <div class="info-loc">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        <span id="infoLoc"></span>
+      </div>
+      <div class="info-specs" id="infoSpecs"></div>
+      <hr class="divider">
+      <div style="display:flex;flex-direction:column;gap:6px;font-size:13px;margin-bottom:18px">
+        <div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Builder</span><strong id="infoBuilder"></strong></div>
+        <div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Possession</span><strong id="infoPossession"></strong></div>
+        <div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Brokerage</span><strong style="color:var(--ok)">0%</strong></div>
+      </div>
+      <div class="info-cta-stack">
+        <button class="btn btn-primary" style="width:100%;justify-content:center">Schedule a Visit</button>
+        <button class="btn btn-ghost" style="width:100%;justify-content:center">📲 WhatsApp Agent</button>
+        <button class="btn btn-ghost" style="width:100%;justify-content:center" onclick="shareProperty()">🔗 Share Property</button>
+      </div>
+      <div class="rera-tag">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        RERA Registered · <span id="infoRera"></span>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer class="z"><strong>Brick<span class="brand">folio</span></strong> — Pune's #1 Zero Brokerage Platform · Powered by AI</footer>
+
+<div class="toast" id="toast"><div class="toast-dot" id="toastDot"></div><span id="toastMsg"></span></div>
+
+<script src="../script.js"></script>
+<script>
+// Read property_id from URL: property.html?id=prop_001
+const params     = new URLSearchParams(window.location.search);
+const PROPERTY_ID = params.get('id');
+let prop = null;
+
+async function loadProperty() {
+  if (!PROPERTY_ID) { document.querySelector('main').innerHTML = '<div class="empty-state"><div>No property ID specified.<br><a href="../index.html" style="color:var(--brand)">← Back to listings</a></div></div>'; return; }
+  try {
+    const r = await fetch(`${API}/properties/${PROPERTY_ID}`);
+    const d = await r.json();
+    prop = d.property;
+    renderProperty(prop);
+    trackView(PROPERTY_ID, 'view');
+    loadSimilar(prop);
+  } catch {
+    showToast('Could not load property', 'error');
+  }
+}
+
+function renderProperty(p) {
+  document.title = `${p.title} — Brickfolio`;
+  document.getElementById('bcTitle').textContent = p.title;
+
+  // Gallery
+  const images = [p.image, p.image, p.image].map((img, i) => img || 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=800&q=80');
+  document.getElementById('mainImage').src = images[0];
+  document.getElementById('galleryThumbs').innerHTML = images.map((img, i) =>
+    `<img src="${img}" class="${i===0?'active':''}" onclick="switchImage('${img}',this)" alt="View ${i+1}" loading="lazy">`
+  ).join('');
+
+  // Info panel
+  document.getElementById('infoPricex').textContent    = p.price_display || formatPrice(p.price);
+  document.getElementById('infoTitle').textContent     = p.title;
+  document.getElementById('infoLoc').textContent       = p.location;
+  document.getElementById('infoBuilder').textContent   = p.builder || '—';
+  document.getElementById('infoPossession').textContent = p.possession || '—';
+  document.getElementById('infoRera').textContent      = p.rera || 'Registered';
+
+  document.getElementById('infoSpecs').innerHTML = [
+    { val: p.bedrooms > 0 ? p.bedrooms : 'N/A', key: 'Bedrooms' },
+    { val: p.size_sqft ? p.size_sqft + ' sqft' : 'N/A', key: 'Size' },
+    { val: p.property_type, key: 'Type' },
+  ].map(s => `<div class="spec-box"><div class="spec-box-val">${s.val}</div><div class="spec-box-key">${s.key}</div></div>`).join('');
+
+  // Overview tab
+  document.getElementById('overviewText').textContent = p.description || 'Premium property in ' + p.location + '.';
+  const icons = ['🏊','🏋️','🛡️','🌳','🅿️','⚡','🏫','🛒'];
+  document.getElementById('highlightsList').innerHTML = (p.amenities || []).slice(0,8).map((a, i) =>
+    `<div class="highlight-item"><div class="hl-icon">${icons[i%icons.length]}</div>${a}</div>`
+  ).join('');
+
+  // Amenities tab
+  document.getElementById('amenitiesGrid').innerHTML = (p.amenities || []).map(a =>
+    `<div class="amenity-item">✓ ${a}</div>`
+  ).join('');
+
+  // Location tab
+  document.getElementById('mapAddress').textContent = p.location;
+  document.getElementById('mapsLink').href = `https://maps.google.com/?q=${p.latitude},${p.longitude}`;
+}
+
+function switchImage(src, el) {
+  document.getElementById('mainImage').src = src;
+  document.querySelectorAll('.gallery-thumbs img').forEach(i => i.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function switchTab(name, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  btn.classList.add('active');
+}
+
+async function loadSimilar(p) {
+  try {
+    const r = await fetch(`${API}/properties?property_type=${encodeURIComponent(p.property_type)}&limit=6`);
+    const d = await r.json();
+    const others = (d.properties || []).filter(x => x.property_id !== p.property_id).slice(0, 5);
+    document.getElementById('similarStrip').innerHTML = others.map(x => `
+      <div class="similar-card" onclick="window.location='property.html?id=${x.property_id}'">
+        <div class="similar-img"><img src="${x.image || 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=400&q=70'}" loading="lazy"></div>
+        <div class="similar-body">
+          <div class="similar-price">${x.price_display || formatPrice(x.price)}</div>
+          <div class="similar-title">${x.title}</div>
+        </div>
+      </div>`).join('') || '<span style="color:var(--muted);font-size:13px">No similar properties found</span>';
+  } catch {}
+}
+
+function shareProperty() {
+  if (navigator.share) {
+    navigator.share({ title: prop?.title, url: window.location.href });
+  } else {
+    navigator.clipboard.writeText(window.location.href);
+    showToast('Link copied to clipboard!', 'ok');
+  }
+}
+
+requestLocation();
+loadProperty();
+</script>
+</body>
+</html>
