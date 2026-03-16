@@ -2,7 +2,7 @@
    Brickfolio — Shared JavaScript
    ═══════════════════════════════════════════════════════════════════ */
 
-const API = 'http://localhost:8000';
+const API = 'https://property-recommendation-system.onrender.com';
 
 // ─── User ID ──────────────────────────────────────────────────────────────
 function getUserId() {
